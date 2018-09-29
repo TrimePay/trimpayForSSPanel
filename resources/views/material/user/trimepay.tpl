@@ -46,6 +46,7 @@
                     'dataType': 'json',
                     'type': "POST",
                     success: function (data) {
+                        $("#readytopay").modal('hide');
                         if (data.code == 0) {
                             $("#result").modal();
                             $("#msg").html("正在跳转到支付宝...");
