@@ -20,11 +20,11 @@
         </div>
     </div>
 
-<script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
+<script type="text/javascript">
     var pid = 0;
-
-    $('body').append("<script src=\" \/assets\/public\/js\/jquery.qrcode.min.js \"><\/script>");
-
     function pay(type){
         if (type==='Alipay'){
             if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
@@ -40,7 +40,18 @@
         if (isNaN(price)) {
             $("#result").modal();
             $("#msg").html("非法的金额!");
+          	$("#readytopay").modal('hide');
+          	return;
         }
+      	if(type == 'ALIPAY_WAP' || type =='ALIPAY_WEB'){
+        	$("#result").modal();
+        	$("#msg").html("正在跳转到支付宝...");
+        	$("#readytopay").modal('hide');
+      	}else{
+        	$("#result").modal();
+        	$("#msg").html("正在加载微信支付...");
+        	$("#readytopay").modal('hide');
+      	}
         $('#readytopay').modal();
         $("#readytopay").on('shown.bs.modal', function () {
             $.ajax({
@@ -53,21 +64,23 @@
                 'type': "POST",
                 success: function (data) {
                     if (data.code == 0) {
-                        $("#result").modal();
-                        $("#msg").html("正在跳转到支付宝...");
-                        console.log(data);
-                        if(type == 'ALIPAY_WAP' || type =='ALIPAY_WEB'){
-                            window.location.href = data.data;
-                        } else {
-                            $("#readytopay").modal('hide');
-                            $("#qrarea").html('<div class="text-center"><p>使用微信扫描二维码支付.</p><div id="qrcode" style="padding-top:  10px;"></div><p>充值完毕后会自动跳转</p></div>');
-                            $("#qrcode").qrcode({
-                                render: "canvas",
-                                width: 100,
-                                height: 100,
-                                "text": data.data
-                            });
 
+                        console.log(data);
+                      	console.log(encodeURI(data.data));
+
+                        if(type == 'ALIPAY_WAP' || type =='ALIPAY_WEB'){
+                          	window.location.href = data.data;
+                        } else {
+
+                          	$("#qrarea").html('<div class="text-center"><p>使用微信扫描二维码支付.</p><div align="center" id="qrcode" style="padding-top:10px;"></div><p>充值完毕后会自动跳转</p></div>');
+
+                          	$("#readytopay").modal('hide');
+                            var qrcode = new QRCode("qrcode", {
+                              	render: "canvas",
+                              	width: 100,
+                              	height: 100,
+                              	text: encodeURI(data.data)
+                            });
                         }
                     } else {
                         $("#result").modal();
@@ -78,5 +91,4 @@
             });
         });
     }
-
 </script>
