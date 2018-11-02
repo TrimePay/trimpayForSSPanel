@@ -17,11 +17,11 @@ use App\Utils\Telegram;
 
 abstract class AbstractPayment
 {
-    abstract public function purchase($request, $response, $args);
-    abstract public function notify($request, $response, $args);
-    abstract public function getPurchaseHTML();
-    abstract public function getReturnHTML($request, $response, $args);
-    abstract public function getStatus($request, $response, $args);
+    abstract protected function purchase($request, $response, $args);
+    abstract protected function notify($request, $response, $args);
+    abstract protected function getPurchaseHTML();
+    abstract protected function getReturnHTML($request, $response, $args);
+    abstract protected function getStatus($request, $response, $args);
 
     public function postPayment($pid, $method){
         $p = Paylist::where("tradeno", $pid)->first();
@@ -44,7 +44,7 @@ abstract class AbstractPayment
         $codeq->userid=$user->id;
         $codeq->save();
 
-        if ($user->ref_by >= 1) {
+        if ($user->ref_by!="" && $user->ref_by!=0 && $user->ref_by!=null) {
             $gift_user=User::where("id", "=", $user->ref_by)->first();
             $gift_user->money=($gift_user->money+($codeq->number*(Config::get('code_payback')/100)));
             $gift_user->save();
@@ -80,7 +80,6 @@ abstract class AbstractPayment
             .substr($charid,20,12)
             .chr(125);
         $uuid = str_replace(['}', '{', '-'],'',$uuid);
-        $uuid = substr($uuid, 0, 8);
         return $uuid;
     }
 
